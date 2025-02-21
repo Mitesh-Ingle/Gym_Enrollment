@@ -1,14 +1,47 @@
 <?php include 'db_connect.php' ?>
 <?php
-if(isset($_GET['rid'])){
-	$qry = $conn->query("SELECT r.*,p.plan,p.amount as pamount,pp.package,pp.amount as ppamount,concat(m.lastname,', ',m.firstname,' ',m.middlename) as name,m.member_id as mid_no from registration_info r inner join members m on m.id = r.member_id inner join plans p on p.id = r.plan_id inner join packages pp on pp.id = r.package_id where r.id=".$_GET['rid'])->fetch_array();
-	foreach($qry as $k =>$v){
-		$$k = $v;
-	}
-	$trainer = $conn->query("SELECT * FROM trainers where id= $trainer_id");
-	$trainer_arr = $trainer->num_rows > 0 ? $trainer->fetch_array() :'';'';
-	$tf = $trainer_id > 0 ? $trainer_arr['rate']:0;
+$ppamount = 0;
+$pamount = 0;
+$tf = 0;
+
+if (isset($_GET['rid'])) {
+    // Fetch registration details
+    $qry = $conn->query("SELECT r.*, p.plan, p.amount AS pamount, 
+        pp.package, pp.amount AS ppamount, 
+        CONCAT(m.lastname, ', ', m.firstname, ' ', m.middlename) AS name, 
+        m.member_id AS mid_no 
+        FROM registration_info r 
+        INNER JOIN members m ON m.id = r.member_id 
+        INNER JOIN plans p ON p.id = r.plan_id 
+        INNER JOIN packages pp ON pp.id = r.package_id 
+        WHERE r.id = " . $_GET['rid']);
+
+    if ($qry && $qry->num_rows > 0) {
+        $result = $qry->fetch_array();
+        foreach ($result as $k => $v) {
+            $$k = $v;
+        }
+    } else {
+        die("Error: Query failed or no data found. " . $conn->error);
+    }
+
+    // Debugging output
+    echo "<pre>";
+    print_r($result);
+    echo "</pre>";
 }
+$tf = 0; // Default trainer fee
+
+if (!empty($trainer_id)) {
+    $trainer = $conn->query("SELECT rate FROM trainers WHERE id = $trainer_id");
+
+    if ($trainer && $trainer->num_rows > 0) {
+        $trainer_arr = $trainer->fetch_assoc();
+        $tf = isset($trainer_arr['rate']) ? $trainer_arr['rate'] : 0;
+    }
+}
+
+
 
 ?>
 <div class="container-fluid">
@@ -25,7 +58,7 @@ if(isset($_GET['rid'])){
 				<tbody>
 					<?php 
 						$pcount=0;
-					$paid = $conn->query("SELECT * FROM payments where registration_id = $id ");
+					$paid = $conn->query("SELECT * FROM payment where registration_id = id ");
 					while($row= $paid->fetch_assoc()):
 						$pcount++;
 					?>
@@ -44,12 +77,16 @@ if(isset($_GET['rid'])){
 				<input type="hidden" name="registration_id" value="<?php echo $id ?>">
 				<div class="form-group">
 					<p>Plan Membership Fee: </i> <b class="float-right"><?php echo ($pcount<=0)? number_format($pamount,2).' (One-time amount only)': 'Paid Already' ?></b></p>
-					<p>Package Amount: </i> <b class="float-right"><?php echo number_format($ppamount,2) ?></b></p>
+					<p>Package Amount: <b class="float-right"><?php echo number_format(isset($ppamount) ? $ppamount : 0, 2); ?></b></p>
 					<p>Trainer Fee: </i> <b class="float-right"><?php echo number_format($tf) ?></b></p>
 				</div>
 				<hr>
 				<div class="form-group">
-					<p>Amount Payable: </i> <b class="float-right"><?php echo ($pcount<=0)? number_format(($ppamount + $tf+$pamount),2) : number_format(($ppamount + $tf),2) ?></b></p>
+				<p>Amount Payable: <b class="float-right">
+    <?php 
+        echo number_format(($pcount <= 0) ? ($ppamount + $tf + $pamount) : ($ppamount + $tf), 2); 
+    ?>
+</b></p>
 				</div>
 				<div class="form-group">
 					<label for="" class="control-label"> Amount</label>
@@ -99,7 +136,7 @@ if(isset($_GET['rid'])){
 				if(resp == 1){
 					alert_toast('Payment Successfully saved','success')
 					end_load()
-					uni_modal('Payments','payment.php?rid=<?php echo $id ?>','large')
+					uni_modal('Payment','payment.php?rid=<?php echo $id ?>','large')
 				}
 			}
 		})

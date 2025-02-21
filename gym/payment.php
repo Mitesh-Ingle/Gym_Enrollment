@@ -25,7 +25,7 @@ if(isset($_GET['rid'])){
 				<tbody>
 					<?php 
 						$pcount=0;
-					$paid = $conn->query("SELECT * FROM payments where registration_id = $id ");
+					$paid = $conn->query("SELECT * FROM payment where registration_id = $id ");
 					while($row= $paid->fetch_assoc()):
 						$pcount++;
 					?>
@@ -99,7 +99,7 @@ if(isset($_GET['rid'])){
 				if(resp == 1){
 					alert_toast('Payment Successfully saved','success')
 					end_load()
-					uni_modal('Payments','payment.php?rid=<?php echo $id ?>','large')
+					uni_modal('payment','payment.php?rid=<?php echo $id ?>','large')
 				}
 			}
 		})

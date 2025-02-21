@@ -7,9 +7,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
   <title>Gym Management System</title>
- 	<?php
-  echo"this is the php page";
-  ?>
+ 	
 
 <?php
   if(!isset($_SESSION['login_id']))

@@ -1,151 +1,137 @@
-<?php include 'db_connect.php' ?>
+<?php 
+// session_start(); // Start the session
+include 'db_connect.php'; 
+?>
 <style>
-   span.float-right.summary_icon {
-    font-size: 3rem;
-    position: absolute;
-    right: 1rem;
-    color: #ffffff96;
+.dashboard-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
 }
-.imgs{
-		margin: .5em;
-		max-width: calc(100%);
-		max-height: calc(100%);
-	}
-	.imgs img{
-		max-width: calc(100%);
-		max-height: calc(100%);
-		cursor: pointer;
-	}
-	#imagesCarousel,#imagesCarousel .carousel-inner,#imagesCarousel .carousel-item{
-		height: 60vh !important;background: black;
-	}
-	#imagesCarousel .carousel-item.active{
-		display: flex !important;
-	}
-	#imagesCarousel .carousel-item-next{
-		display: flex !important;
-	}
-	#imagesCarousel .carousel-item img{
-		margin: auto;
-	}
-	#imagesCarousel img{
-		width: auto!important;
-		height: auto!important;
-		max-height: calc(100%)!important;
-		max-width: calc(100%)!important;
-	}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.card-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.2;
+    font-size: 4rem;
+    color: white;
+}
+
+.welcome-header {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 15px;
+    color: white;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-header::before {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.welcome-header h3 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
+}
+
+.bg-primary { background: linear-gradient(135deg, #3b82f6, #6366f1) !important; }
+.bg-info { background: linear-gradient(135deg, #06b6d4, #0ea5e9) !important; }
+.bg-warning { background: linear-gradient(135deg, #f59e0b, #fbbf24) !important; }
+
 </style>
 
-<div class="containe-fluid">
-	<div class="row mt-3 ml-3 mr-3">
+<div class="container-fluid">
+    <div class="row mt-4 mx-3">
         <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <?php echo "Welcome back ". $_SESSION['login_name']."!"  ?>
-                    <hr>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body bg-primary">
-                                    <div class="card-body text-white">
-                                        <span class="float-right summary_icon"><i class="fa fa-users"></i></span>
-                                        <h4><b>
-                                            <?php echo $conn->query("SELECT * FROM registration_info where status = 1")->num_rows; ?>
-                                        </b></h4>
-                                        <p><b>Active Members</b></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body bg-info">
-                                    <div class="card-body text-white">
-                                        <span class="float-right summary_icon"><i class="fa fa-th-list"></i></span>
-                                        <h4><b>
-                                            <?php echo $conn->query("SELECT * FROM plans")->num_rows; ?>
-                                        </b></h4>
-                                        <p><b>Total Membership Plans</b></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body bg-warning">
-                                    <div class="card-body text-white">
-                                        <span class="float-right summary_icon"><i class="fa fa-list"></i></span>
-                                        <h4><b>
-                                            <?php echo $conn->query("SELECT * FROM packages")->num_rows; ?>
-                                        </b></h4>
-                                        <p><b>Total Packages</b></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>	
+            <!-- Welcome Header -->
+            <div class="welcome-header">
+                <h3><?php echo isset($_SESSION['login_name']) ? htmlspecialchars($_SESSION['login_name']) : 'Guest'; ?></h3>
+                <p class="mb-0">Gym Management Dashboard Overview</p>
+                <i class="bi bi-calendar-check dashboard-icon" style="position: absolute; right: 20px; bottom: 20px; font-size: 3rem; opacity: 0.1;"></i>
+            </div>
 
-                    
+            <!-- Stats Cards -->
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="dashboard-card bg-primary">
+                        <div class="card-body text-white p-4">
+                            <i class="bi bi-people-fill card-icon"></i>
+                            <div class="stat-number">
+                                <?php echo $conn->query("SELECT * FROM registration_info WHERE status = 1")->num_rows; ?>
+                            </div>
+                            <div class="stat-label">Active Members</div>
+                        </div>
+                    </div>
                 </div>
-            </div>      			
+
+                <div class="col-md-4 mb-4">
+                    <div class="dashboard-card bg-info">
+                        <div class="card-body text-white p-4">
+                            <i class="bi bi-clipboard2-data-fill card-icon"></i>
+                            <div class="stat-number">
+                                <?php echo $conn->query("SELECT * FROM plans")->num_rows; ?>
+                            </div>
+                            <div class="stat-label">Membership Plans</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="dashboard-card bg-warning">
+                        <div class="card-body text-white p-4">
+                            <i class="bi bi-box-seam-fill card-icon"></i>
+                            <div class="stat-number">
+                                <?php echo $conn->query("SELECT * FROM packages")->num_rows; ?>
+                            </div>
+                            <div class="stat-label">Total Packages</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 <script>
-	$('#manage-records').submit(function(e){
-        e.preventDefault()
-        start_load()
-        $.ajax({
-            url:'ajax.php?action=save_track',
-            data: new FormData($(this)[0]),
-            cache: false,
-            contentType: false,
-            processData: false,
-            method: 'POST',
-            type: 'POST',
-            success:function(resp){
-                resp=JSON.parse(resp)
-                if(resp.status==1){
-                    alert_toast("Data successfully saved",'success')
-                    setTimeout(function(){
-                        location.reload()
-                    },800)
-
-                }
-                
-            }
-        })
-    })
-    $('#tracking_id').on('keypress',function(e){
-        if(e.which == 13){
-            get_person()
-        }
-    })
-    $('#check').on('click',function(e){
-            get_person()
-    })
-    function get_person(){
-            start_load()
-        $.ajax({
-                url:'ajax.php?action=get_pdetails',
-                method:"POST",
-                data:{tracking_id : $('#tracking_id').val()},
-                success:function(resp){
-                    if(resp){
-                        resp = JSON.parse(resp)
-                        if(resp.status == 1){
-                            $('#name').html(resp.name)
-                            $('#address').html(resp.address)
-                            $('[name="person_id"]').val(resp.id)
-                            $('#details').show()
-                            end_load()
-
-                        }else if(resp.status == 2){
-                            alert_toast("Unknow tracking id.",'danger');
-                            end_load();
-                        }
-                    }
-                }
-            })
-    }
+// Add animation to stats cards on load
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.dashboard-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+});
 </script>
